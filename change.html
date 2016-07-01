@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <script type="text/javascript" src="json.js"></script>
+  <title>Document</title>
+ </head>
+ <body>
+  <script type="text/javascript">
+	var oldinfo1 = {
+    "logic": "and",
+    "rules": [
+        {
+            "feature": "a",
+            "op": ">",
+            "value": "1"
+        },
+        {
+            "logic": "and",
+            "rules": [
+                {
+                    "feature": "b",
+                    "op": ">",
+                    "value": "3"
+                },
+                {
+                    "logic": "or",
+                    "rules": [
+                        {
+                            "feature": "123",
+                            "op": "<=",
+                            "value": "123"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+};
+    var oldinfo2 = {"logic":"and","rules":[{"feature":"a","op":">","value":"1"},{"feature":"b","op":"<","value":"2"},{"logic":"and","rules":[{"feature":"c","op":"<","value":"3"}]},{"feature":"d","op":">","value":"4"}]}
+    var oldinfo3 = {"logic":"and","rules":[{"feature":"a","op":">","value":"1"},{"feature":"b","op":"<","value":"2"}]};
+    var oldinfo4 = {"logic":"and","rules":[{"feature":"a","op":">","value":"1"},{"feature":"b","op":"<","value":"2"},{"feature":"c","op":"<","value":"2"}]}
+
+function and() {
+	this.and = [];
+}
+
+function or() {
+	this.or = [];
+}
+
+function logicRules() {
+	this.logic = "";
+	this.rules = [];
+}
+
+function reverse(old) {
+	if(isNotNull(old.and)) {
+		var json = new logicRules();
+		json.logic = "and";
+		var obj = old.and;
+		for (var item in obj) {
+			if(isNotNull(obj[item].feature)) { //{feature: ...}
+				json.rules.push(obj[item]);
+			} else {  
+				json.rules.push(reverse(obj[item]));
+			}
+		}
+		return json;
+	} else if (isNotNull(old.no)) {
+		var json = new logicRules();
+		json.logic = "or";
+		var obj = old.or;
+		for (var item in obj) {
+			if(isNotNull(obj[item].feature)) { //{feature: ...}
+				json.rules.push(obj[item]);
+			} else {  
+				json.rules.push(reverse(obj[item]));
+			}
+		}
+		return json;
+	}
+}
+
+function isNotNull(str) {
+	return str !== null && str !== undefined && str !== ''; 
+}
+
+function change(old) {
+	var str = old.logic;
+	if(str == "and") {
+		var json = new and();
+		var obj = old.rules;
+		for (var item in obj)
+        {
+			if(isNotNull(obj[item].feature)) { //feature不为空
+				json.and.push(obj[item]);
+			} else{ //feature为空
+				json.and.push(change(obj[item]));
+			}
+        }
+		return json;
+	} else if(str == "or") {
+		var json = new or();
+		var obj = old.rules;
+		for (var item in obj)
+        {
+			if(isNotNull(obj[item].feature)) { //feature不为空
+				json.or.push(obj[item]);
+			} else{ //feature为空
+				json.or.push(change(obj[item]));
+			}
+        }
+		return json;
+	}
+}
+
+var str1 = JSON.stringify(change(oldinfo1));
+console.log("str1 :" + str1);
+console.log("reverse str1 :" + JSON.stringify(reverse(JSON.parse(str1))));
+
+var str2 = JSON.stringify(change(oldinfo2));
+console.log("str2 :" + str2);
+console.log("reverse str2 :" + JSON.stringify(reverse(JSON.parse(str2))));
+
+var str3 = JSON.stringify(change(oldinfo3));
+console.log("str3 :" + str3);
+console.log("reverse str3 :" + JSON.stringify(reverse(JSON.parse(str3))));
+
+var str4 = JSON.stringify(change(oldinfo4));
+console.log("str4 :" + str4);
+console.log("reverse str4 :" + JSON.stringify(reverse(JSON.parse(str4))));
+
+ </script>
+ </body>
+</html>

@@ -1,0 +1,3 @@
+There is also a method dedicated to sibling paths, named resolvedSibling().
+It resolves the passed path against the current path's parent path.
+Practically, this method replaces the file name of the current path with the file name of the given path.
